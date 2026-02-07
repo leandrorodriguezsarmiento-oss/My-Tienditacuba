@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Pro + Inventario v7</title>
+    <style>
+        :root {
+            --gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --whatsapp: #25D366;
+            --danger: #ff4757;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--text-main);
+            padding-bottom: 140px;
+        }
+
+        /* Encabezado Estilo Premium */
+        header { 
+            background: var(--gradient); 
+            color: white; 
+            text-align: center; 
+            padding: 40px 20px; 
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Barra de Administración */
+        .admin-bar { 
+            background: #ffffff; 
+            padding: 12px; 
+            display: flex; 
+            justify-content: center; 
+            gap: 12px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+        }
+
+        .btn-adm { 
+            border: none; 
+            padding: 10px 18px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 12px; 
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Grid de Productos */
+        .container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 20px; 
+            padding: 25px; 
+            max-width: 1100px; 
+            margin: auto; 
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            padding: 15px; 
+            text-align: center; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05); 
+            position: relative; 
+            transition: transform 0.3s;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .card:hover { transform: translateY(-5px); }
+
+        .card img { 
+            width: 100%; 
+            height: 160px; 
+            object-fit: cover; 
+            border-radius: 15px; 
+            background: #f9f9f9; 
+            cursor: pointer; 
+        }
+
+        /* Etiquetas de Stock */
+        .stock-tag { 
+            font-size: 11px; 
+            font-weight: bold; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            margin: 10px 0;
+            display: inline-block;
+        }
+        .en-stock { background: #dff9fb; color: #0984e3; }
+        .agotado { background: #ffeaa7; color: #d63031; }
+
+        .price { 
+            color: var(--text-main); 
+            font-weight: 800; 
+            font-size: 1.4rem; 
+            display: block; 
+            margin: 10px 0; 
+        }
+
+        .btn-add { 
+            background: var(--gradient); 
+            color: white; 
+            border: none; 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 15px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+        }
+
+        .btn-add:disabled { background: #dfe6e9; box-shadow: none; cursor: not-allowed; }
+
+        /* Carrito Estilo Flotante Moderno */
+        .cart-float { 
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: white; 
+            width: 90%; 
+            max-width: 420px; 
+            border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
+            padding: 20px; 
+            display: none; 
+            z-index: 2000; 
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .btn-checkout { 
+            background: var(--gradient); 
+            color: white; 
+            border: none; 
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 18px; 
+            font-weight: bold; 
+            font-size: 16px;
+            cursor: pointer; 
+            margin-top: 15px;
+        }
+
+        /* Estilos Edición */
+        [contenteditable="true"] { border: 2px dashed #74b9ff; background: #f1f2f6; border-radius: 8px; padding: 2px 5px; }
+        .btn-del { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 3px solid white; font-weight: bold; }
+        input[type="file"] { display: none; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-bar">
+    <button onclick="toggleEdit()" id="editBtn" class="btn-adm" style="background: #2d3436; color: white;">?? CONFIGURAR</button>
+    <button onclick="addProd()" id="addBtn" style="display:none; background: #0984e3; color: white;" class="btn-adm">+ PRODUCTO</button>
+    <button onclick="saveAll()" id="saveBtn" style="display:none; background: #00b894; color: white;" class="btn-adm">?? GUARDAR TODO</button>
+    <div id="envioDiv" style="display:none; font-size:12px; font-weight:bold;">
+        Envío: $<span id="envioVal" contenteditable="true">0</span>
+    </div>
+</div>
+
+<header>
+    <h1 id="storeName" contenteditable="false">Mi Tienda Online</h1>
+    <p id="storeSub" contenteditable="false">Calidad superior en cada pedido</p>
+</header>
+
+<div class="container" id="grid"></div>
+
+<div class="cart-float" id="cartBox">
+    <div style="font-weight:800; text-align:center; font-size:18px; margin-bottom:15px; color:#6a11cb;">??? TU PEDIDO</div>
+    <div id="cartItems" style="font-size: 14px; margin-bottom: 10px; color: #636e72;"></div>
+    
+    <div style="border-top: 2px dashed #eee; padding-top: 10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Subtotal:</span><span id="cartSubtotal">$0.00</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Envío:</span><span id="cartEnvio">$0.00</span></div>
+        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:20px; color:#2d3436; margin-top:10px;">
+            <span>TOTAL:</span><span id="cartTotal">$0.00</span>
+        </div>
+    </div>
+
+    <div style="display:grid; gap:10px; margin:20px 0;">
+        <input type="text" id="clientName" placeholder="Tu Nombre Completo" style="padding:12px; border-radius:12px; border:1.5px solid #eee; outline:none;">
+        <input type="text" id="clientDir" placeholder="Dirección Exacta de Entrega" style="padding:12px; border-radius:12px; border:1.5px solid #eee; outline:none;">
+    </div>
+
+    <button class="btn-checkout" onclick="sendInvoice()">? ENVIAR FACTURA A WHATSAPP</button>
+    <div onclick="clearCart()" style="text-align:center; color:#b2bec3; font-size:12px; margin-top:15px; cursor:pointer; font-weight:600;">VACÍAR CARRITO</div>
+</div>
+
+<script>
+    const tel = "5356530329";
+    let isEdit = false;
+    let cart = [];
+    
+    let prods = JSON.parse(localStorage.getItem('pro_db_v7')) || [
+        { id: 1, n: "Producto Premium", p: 1200, i: "https://via.placeholder.com/300", s: 10 }
+    ];
+    let costoEnvio = localStorage.getItem('pro_envio_v7') || 0;
+
+    function render() {
+        const g = document.getElementById('grid');
+        g.innerHTML = '';
+        prods.forEach((p, i) => {
+            const agotado = p.s <= 0;
+            g.innerHTML += `
+                <div class="card">
+                    ${isEdit ? `<button class="btn-del" onclick="remove(${i})">?</button>` : ''}
+                    <label>
+                        <img src="${p.i}" id="img-${i}">
+                        <input type="file" onchange="upImg(event, ${i})" ${!isEdit?'disabled':''} accept="image/*">
+                    </label>
+                    <h3 id="n-${i}" contenteditable="${isEdit}">${p.n}</h3>
+                    <span class="stock-tag ${agotado ? 'agotado' : 'en-stock'}">
+                        ${agotado ? 'AGOTADO' : `En Stock: <span id="s-${i}" contenteditable="${isEdit}">${p.s}</span>`}
+                    </span>
+                    <span class="price">$<span id="p-${i}" contenteditable="${isEdit}">${p.p}</span></span>
+                    
+                    ${isEdit ? 
+                        `<button onclick="venderUno(${i})" style="background:#6c5ce7; color:white; border:none; padding:8px; border-radius:10px; cursor:pointer; font-size:11px; margin-bottom:10px; width:100%;">Marcar como Vendido</button>` 
+                        : ''
+                    }
+                    
+                    <button class="btn-add" onclick="addToCart(${i})" ${agotado ? 'disabled' : ''}>
+                        ${agotado ? 'NO DISPONIBLE' : 'Añadir al Carrito'}
+                    </button>
+                </div>`;
+        });
+        document.getElementById('storeName').innerText = localStorage.getItem('pro_name_v7') || "Mi Tienda Online";
+        document.getElementById('storeSub').innerText = localStorage.getItem('pro_sub_v7') || "Calidad superior en cada pedido";
+        document.getElementById('envioVal').innerText = costoEnvio;
+    }
+
+    function venderUno(i) {
+        if(prods[i].s > 0) {
+            prods[i].s -= 1;
+            render();
+            localStorage.setItem('pro_db_v7', JSON.stringify(prods));
+        }
+    }
+
+    function addToCart(index) {
+        if(isEdit) return;
+        cart.push(prods[index]);
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        const box = document.getElementById('cartBox');
+        const itemsDiv = document.getElementById('cartItems');
+        const subSpan = document.getElementById('cartSubtotal');
+        const envSpan = document.getElementById('cartEnvio');
+        const totalSpan = document.getElementById('cartTotal');
+        
+        box.style.display = cart.length > 0 ? 'block' : 'none';
+        itemsDiv.innerHTML = '';
+        let subtotal = 0;
+
+        cart.forEach(item => {
+            subtotal += parseFloat(item.p);
+            itemsDiv.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>• ${item.n}</span><span>$${item.p}</span></div>`;
+        });
+
+        subSpan.innerText = `$${subtotal.toFixed(2)}`;
+        envSpan.innerText = `$${parseFloat(costoEnvio).toFixed(2)}`;
+        totalSpan.innerText = `$${(subtotal + parseFloat(costoEnvio)).toFixed(2)}`;
+    }
+
+    function clearCart() { cart = []; updateCartUI(); }
+
+    function sendInvoice() {
+        const nom = document.getElementById('clientName').value || "Cliente";
+        const dir = document.getElementById('clientDir').value || "Punto de recogida";
+        let subtotal = 0; let lista = "";
+        cart.forEach(item => { lista += `• ${item.n} ($${item.p})\n`; subtotal += parseFloat(item.p); });
+        const factura = `?? *NUEVA COMPRA PRO*\n--------------------------\n?? *Cliente:* ${nom}\n?? *Dirección:* ${dir}\n--------------------------\n${lista}\n?? *Subtotal:* $${subtotal.toFixed(2)}\n?? *Envío:* $${costoEnvio}\n?? *TOTAL:* $${(subtotal + parseFloat(costoEnvio)).toFixed(2)}\n--------------------------\n¿Está disponible el pedido?`;
+        window.open(`https://wa.me/${tel}?text=${encodeURIComponent(factura)}`);
+        clearCart();
+    }
+
+    function toggleEdit() {
+        isEdit = !isEdit;
+        document.getElementById('editBtn').innerText = isEdit ? "? CERRAR CONFIG" : "?? CONFIGURAR";
+        document.getElementById('addBtn').style.display = isEdit ? 'block' : 'none';
+        document.getElementById('saveBtn').style.display = isEdit ? 'block' : 'none';
+        document.getElementById('envioDiv').style.display = isEdit ? 'block' : 'none';
+        document.getElementById('storeName').contentEditable = isEdit;
+        document.getElementById('storeSub').contentEditable = isEdit;
+        render();
+    }
+
+    function addProd() { prods.push({ id: Date.now(), n: "Nuevo Producto", p: 0, i: "https://via.placeholder.com/300", s: 1 }); render(); }
+    function remove(i) { prods.splice(i, 1); render(); }
+    function upImg(e, i) {
+        const f = e.target.files[0];
+        const r = new FileReader();
+        r.onload = (ev) => { prods[i].i = ev.target.result; render(); };
+        r.readAsDataURL(f);
+    }
+
+    function saveAll() {
+        prods.forEach((p, i) => {
+            p.n = document.getElementById(`n-${i}`).innerText;
+            p.p = document.getElementById(`p-${i}`).innerText.replace('$', '').trim();
+            p.s = parseInt(document.getElementById(`s-${i}`).innerText) || 0;
+        });
+        costoEnvio = document.getElementById('envioVal').innerText;
+        localStorage.setItem('pro_db_v7', JSON.stringify(prods));
+        localStorage.setItem('pro_envio_v7', costoEnvio);
+        localStorage.setItem('pro_name_v7', document.getElementById('storeName').innerText);
+        localStorage.setItem('pro_sub_v7', document.getElementById('storeSub').innerText);
+        alert("?? ¡Tienda Estilizada y Guardada!");
+        toggleEdit();
+    }
+
+    render();
+</script>
+</body>
+</html>
