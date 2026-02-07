@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Pro + Inventario</title>
+    <style>
+        :root { --whatsapp: #25D366; --dark: #075E54; --accent: #3498db; --bg: #f0f2f5; --danger: #e74c3c; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 140px; }
+        
+        .admin-bar { background: #1c1e21; padding: 10px; display: flex; justify-content: center; gap: 10px; position: sticky; top: 0; z-index: 1000; flex-wrap: wrap; }
+        .btn-adm { border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; }
+
+        header { background: var(--dark); color: white; text-align: center; padding: 25px 15px; border-radius: 0 0 20px 20px; }
+
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; padding: 15px; max-width: 900px; margin: auto; }
+        .card { background: white; border-radius: 15px; padding: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; border: 1px solid #eee; }
+        .card img { width: 100%; height: 130px; object-fit: cover; border-radius: 10px; background: #fafafa; cursor: pointer; }
+        
+        .stock-tag { font-size: 0.7rem; font-weight: bold; padding: 2px 8px; border-radius: 10px; margin-top: 5px; display: inline-block; }
+        .en-stock { background: #e8f5e9; color: #2e7d32; }
+        .agotado { background: #ffebee; color: #c62828; }
+
+        .price { color: var(--whatsapp); font-weight: bold; font-size: 1.1rem; display: block; margin: 5px 0; }
+        .btn-add { background: var(--whatsapp); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-add:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* Carrito */
+        .cart-float { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); background: white; width: 92%; max-width: 400px; border-radius: 20px; box-shadow: 0 5px 25px rgba(0,0,0,0.25); padding: 18px; display: none; z-index: 2000; }
+        .total-row { display: flex; justify-content: space-between; font-weight: bold; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px; }
+
+        .btn-checkout { background: var(--whatsapp); color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        [contenteditable="true"] { border: 2px dashed var(--accent); background: #fffde7; }
+        .btn-del { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; z-index: 10; border: 2px solid white; }
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="admin-bar">
+    <button onclick="toggleEdit()" id="editBtn" class="btn-adm" style="background: #444;">?? CONFIGURAR / STOCK</button>
+    <button onclick="addProd()" id="addBtn" style="display:none; background: var(--accent);" class="btn-adm">+ NUEVO</button>
+    <button onclick="saveAll()" id="saveBtn" style="display:none; background: #27ae60;" class="btn-adm">?? GUARDAR CAMBIOS</button>
+    <div id="envioDiv" style="display:none; color:white; font-size:11px; margin-left:10px;">Envío: $<span id="envioVal" contenteditable="true">0</span></div>
+</div>
+
+<header>
+    <h1 id="storeName" contenteditable="false">Mi Tienda Online</h1>
+    <p id="storeSub" contenteditable="false">Catálogo con Inventario Real</p>
+</header>
+
+<div class="container" id="grid"></div>
+
+<div class="cart-float" id="cartBox">
+    <div style="font-weight:bold; text-align:center; margin-bottom:10px;">?? RESUMEN</div>
+    <div id="cartItems" style="font-size: 0.9rem; margin-bottom: 10px;"></div>
+    <div class="total-row"><span>TOTAL:</span><span id="cartTotal">$0.00</span></div>
+    <div style="display:grid; gap:8px; margin:12px 0;">
+        <input type="text" id="clientName" placeholder="Tu Nombre" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
+        <input type="text" id="clientDir" placeholder="Dirección de entrega" style="padding:10px; border-radius:8px; border:1px solid #ddd;">
+    </div>
+    <button class="btn-checkout" onclick="sendInvoice()">? ENVIAR POR WHATSAPP</button>
+</div>
+
+<script>
+    const tel = "5356530329";
+    let isEdit = false;
+    let cart = [];
+    
+    let prods = JSON.parse(localStorage.getItem('pro_db_v6')) || [{ id: 1, n: "Producto", p: 10, i: "https://via.placeholder.com/300", s: 5 }];
+    let costoEnvio = localStorage.getItem('pro_envio_v6') || 0;
+
+    function render() {
+        const g = document.getElementById('grid');
+        g.innerHTML = '';
+        prods.forEach((p, i) => {
+            const agotado = p.s <= 0;
+            g.innerHTML += `
+                <div class="card">
+                    ${isEdit ? `<button class="btn-del" onclick="remove(${i})">?</button>` : ''}
+                    <label>
+                        <img src="${p.i}" id="img-${i}">
+                        <input type="file" onchange="upImg(event, ${i})" ${!isEdit?'disabled':''} accept="image/*">
+                    </label>
+                    <h3 id="n-${i}" contenteditable="${isEdit}">${p.n}</h3>
+                    <span class="stock-tag ${agotado ? 'agotado' : 'en-stock'}">
+                        ${agotado ? 'AGOTADO' : `Stock: <span id="s-${i}" contenteditable="${isEdit}">${p.s}</span>`}
+                    </span>
+                    <span class="price">$<span id="p-${i}" contenteditable="${isEdit}">${p.p}</span></span>
+                    
+                    ${isEdit ? 
+                        `<button onclick="venderUno(${i})" style="background:#f39c12; color:white; border:none; padding:5px; border-radius:5px; cursor:pointer; font-size:10px; margin-bottom:5px;">?? Marcar Vendido</button>` 
+                        : ''
+                    }
+                    
+                    <button class="btn-add" onclick="addToCart(${i})" ${agotado ? 'disabled' : ''}>
+                        ${agotado ? 'SIN STOCK' : 'Añadir'}
+                    </button>
+                </div>`;
+        });
+        document.getElementById('storeName').innerText = localStorage.getItem('pro_name_v6') || "Mi Tienda Online";
+        document.getElementById('storeSub').innerText = localStorage.getItem('pro_sub_v6') || "Catálogo con Inventario Real";
+        document.getElementById('envioVal').innerText = costoEnvio;
+    }
+
+    function venderUno(i) {
+        if(prods[i].s > 0) {
+            prods[i].s -= 1;
+            render();
+            // Guardado rápido de stock
+            localStorage.setItem('pro_db_v6', JSON.stringify(prods));
+        } else {
+            alert("Ya no queda stock de este producto.");
+        }
+    }
+
+    function addToCart(index) {
+        if(isEdit) return;
+        cart.push(prods[index]);
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        const box = document.getElementById('cartBox');
+        const itemsDiv = document.getElementById('cartItems');
+        const totalSpan = document.getElementById('cartTotal');
+        box.style.display = cart.length > 0 ? 'block' : 'none';
+        itemsDiv.innerHTML = '';
+        let subtotal = 0;
+        cart.forEach(item => {
+            subtotal += parseFloat(item.p);
+            itemsDiv.innerHTML += `<div style="display:flex; justify-content:space-between;"><span>• ${item.n}</span><span>$${item.p}</span></div>`;
+        });
+        totalSpan.innerText = `$${(subtotal + parseFloat(costoEnvio)).toFixed(2)}`;
+    }
+
+    function sendInvoice() {
+        const nom = document.getElementById('clientName').value || "Cliente";
+        const dir = document.getElementById('clientDir').value || "Recogida";
+        let subtotal = 0; let lista = "";
+        cart.forEach(item => { lista += `• ${item.n} ($${item.p})\n`; subtotal += parseFloat(item.p); });
+        const factura = `??? *PEDIDO CONFIRMADO*\n?? *Cliente:* ${nom}\n?? *Dir:* ${dir}\n\n${lista}\n?? *Envío:* $${costoEnvio}\n?? *TOTAL: $${(subtotal + parseFloat(costoEnvio)).toFixed(2)}*`;
+        window.open(`https://wa.me/${tel}?text=${encodeURIComponent(factura)}`);
+        cart = []; updateCartUI();
+    }
+
+    function toggleEdit() {
+        isEdit = !isEdit;
+        document.getElementById('editBtn').innerText = isEdit ? "? FINALIZAR" : "?? CONFIGURAR / STOCK";
+        document.getElementById('addBtn').style.display = isEdit ? 'block' : 'none';
+        document.getElementById('saveBtn').style.display = isEdit ? 'block' : 'none';
+        document.getElementById('envioDiv').style.display = isEdit ? 'block' : 'none';
+        document.getElementById('storeName').contentEditable = isEdit;
+        document.getElementById('storeSub').contentEditable = isEdit;
+        render();
+    }
+
+    function addProd() { prods.push({ id: Date.now(), n: "Nuevo", p: 0, i: "https://via.placeholder.com/300", s: 1 }); render(); }
+    function remove(i) { prods.splice(i, 1); render(); }
+    function upImg(e, i) {
+        const f = e.target.files[0];
+        const r = new FileReader();
+        r.onload = (ev) => { prods[i].i = ev.target.result; render(); };
+        r.readAsDataURL(f);
+    }
+
+    function saveAll() {
+        prods.forEach((p, i) => {
+            p.n = document.getElementById(`n-${i}`).innerText;
+            p.p = document.getElementById(`p-${i}`).innerText.replace('$', '').trim();
+            p.s = parseInt(document.getElementById(`s-${i}`).innerText) || 0;
+        });
+        costoEnvio = document.getElementById('envioVal').innerText;
+        localStorage.setItem('pro_db_v6', JSON.stringify(prods));
+        localStorage.setItem('pro_envio_v6', costoEnvio);
+        localStorage.setItem('pro_name_v6', document.getElementById('storeName').innerText);
+        localStorage.setItem('pro_sub_v6', document.getElementById('storeSub').innerText);
+        alert("? Inventario y Tienda Actualizados");
+        toggleEdit();
+    }
+
+    render();
+</script>
+</body>
+</html>
