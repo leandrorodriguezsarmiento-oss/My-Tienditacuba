@@ -3,26 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIPCELLUNLOCK | Cloud Sync</title>
+    <title>VIPCELLUNLOCK | Premium Store</title>
     <style>
-        :root { --gold: #d4af37; --dark: #121212; --bg: #f5f5f7; --whatsapp: #25d366; }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); padding-bottom: 120px; }
-        header { background: #000; color: white; text-align: center; padding: 50px 20px; border-bottom: 4px solid var(--gold); }
-        .lock-icon { font-size: 40px; color: var(--gold); display: block; margin-bottom: 10px; }
-        header h1 { font-size: 2.2rem; margin: 0; color: var(--gold); letter-spacing: 2px; }
-        .tabs { display: flex; justify-content: center; background: white; padding: 10px 0; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #ddd; }
-        .tab-btn { border: none; background: none; padding: 12px 25px; font-weight: bold; cursor: pointer; border-radius: 20px; transition: 0.3s; }
+        :root {
+            --gold: #d4af37;
+            --dark: #121212;
+            --bg: #f5f5f7;
+            --white: #ffffff;
+            --whatsapp: #25d366;
+        }
+
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            margin: 0; background: var(--bg); color: #333; 
+            padding-bottom: 150px;
+        }
+
+        header { 
+            background: #000; color: white; text-align: center; 
+            padding: 50px 20px; border-bottom: 4px solid var(--gold);
+        }
+
+        .lock-icon { font-size: 45px; color: var(--gold); display: block; margin-bottom: 10px; }
+        header h1 { font-size: 2.2rem; margin: 0; letter-spacing: 2px; color: var(--gold); font-weight: 800; }
+        header p { color: #86868b; margin-top: 5px; }
+
+        .tabs { 
+            display: flex; justify-content: center; background: white; 
+            padding: 10px 0; position: sticky; top: 0; z-index: 1000; 
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-btn { 
+            border: none; background: none; padding: 12px 25px; 
+            font-weight: bold; cursor: pointer; border-radius: 25px; transition: 0.3s;
+        }
+
         .tab-btn.active { background: var(--gold); color: black; }
-        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding: 25px; max-width: 1100px; margin: auto; }
-        .card { background: white; border-radius: 22px; padding: 20px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border: 1px solid #eee; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card img { width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; }
-        .price { font-size: 1.6rem; font-weight: 800; display: block; margin: 10px 0; color: #000; }
-        .btn-add { background: var(--dark); color: var(--gold); border: 1px solid var(--gold); width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        .btn-add:disabled { background: #ccc; border: none; color: #888; }
-        .cart-float { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; width: 90%; max-width: 400px; border-radius: 25px; box-shadow: 0 10px 50px rgba(0,0,0,0.3); padding: 25px; display: none; z-index: 2000; border: 2px solid var(--gold); }
-        input { width: 90%; padding: 12px; margin-top: 15px; border-radius: 10px; border: 1px solid #ddd; font-family: inherit; }
-        .loading { text-align: center; padding: 50px; font-weight: bold; color: var(--gold); }
+
+        .container { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+            gap: 25px; padding: 30px 20px; max-width: 1100px; margin: auto; 
+        }
+
+        .card { 
+            background: white; border-radius: 22px; padding: 25px; 
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            border: 1px solid #eee; transition: 0.3s;
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--gold); }
+        .card img { width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; border-radius: 10px; }
+
+        .price { font-size: 1.6rem; font-weight: 800; color: var(--dark); display: block; margin: 15px 0; }
+        
+        .btn-add { 
+            background: var(--dark); color: var(--gold); border: 1px solid var(--gold); 
+            width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; 
+        }
+
+        .cart-float { 
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
+            background: white; width: 90%; max-width: 420px; border-radius: 28px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2); padding: 25px; display: none; z-index: 2000; 
+            border: 2px solid var(--gold);
+        }
+
+        input { width: 90%; padding: 12px; margin-top: 15px; border-radius: 10px; border: 1px solid #ddd; outline: none; }
+        
+        .loading { text-align: center; padding: 100px 20px; font-weight: bold; color: var(--gold); font-size: 1.2rem; }
+
+        footer { text-align: center; padding: 40px 20px; background: #000; color: #86868b; margin-top: 50px; }
+        footer a { color: var(--gold); text-decoration: none; }
     </style>
 </head>
 <body>
@@ -30,28 +81,35 @@
 <header>
     <span class="lock-icon">🔐</span>
     <h1>VIPCELLUNLOCK</h1>
-    <p>Premium Tech & Solutions</p>
+    <p>Premium Technology & Solutions</p>
 </header>
 
 <div class="tabs">
-    <button class="tab-btn active" id="tab-prod" onclick="switchTab('prod')">Productos</button>
-    <button class="tab-btn" id="tab-serv" onclick="switchTab('serv')">Servicios</button>
+    <button class="tab-btn active" id="btn-prod" onclick="switchTab('prod')">Productos</button>
+    <button class="tab-btn" id="btn-serv" onclick="switchTab('serv')">Servicios / Unlock</button>
 </div>
 
-<div id="loader" class="loading">Sincronizando con la nube...</div>
+<div id="loader" class="loading">Sincronizando con la nube de VIPCELL...</div>
 <div class="container" id="grid"></div>
 
 <div class="cart-float" id="cart">
-    <div style="font-weight:bold; text-align:center; margin-bottom:10px;">📋 RESUMEN DE PEDIDO</div>
-    <div id="cart-items" style="font-size:14px;"></div>
-    <div style="font-weight:bold; margin-top:15px; font-size:1.4rem; border-top:1px solid #eee; padding-top:10px;">Total: <span id="cart-total">$0.00</span></div>
-    <input type="text" id="c-name" placeholder="Tu Nombre">
-    <button onclick="send()" style="background:var(--whatsapp); color:white; border:none; width:100%; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer; margin-top:10px;">PEDIR POR WHATSAPP</button>
+    <div style="font-weight: 800; text-align: center; margin-bottom: 15px; font-size: 1.1rem;">📋 TU PEDIDO</div>
+    <div id="cart-items" style="font-size: 14px; max-height: 150px; overflow-y: auto;"></div>
+    <div style="display: flex; justify-content: space-between; font-weight: 800; margin-top: 15px; font-size: 1.3rem; border-top: 1px solid #eee; padding-top: 10px;">
+        <span>Total:</span><span id="cart-total">$0.00</span>
+    </div>
+    <input type="text" id="c-name" placeholder="Tu Nombre o Usuario">
+    <button onclick="send()" style="background:var(--whatsapp); color:white; border:none; width:100%; padding:16px; border-radius:15px; font-weight:bold; cursor:pointer; margin-top:15px; font-size: 16px;">🚀 ENVIAR SOLICITUD</button>
 </div>
 
+<footer>
+    <p>© 2026 VIPCELLUNLOCK</p>
+    <a href="https://leandrorodriguezsarmiento-oss.github.io/My-Tienditacuba/">Web Oficial de Soporte</a>
+</footer>
+
 <script>
-    // --- PEGA TU LINK DE GOOGLE SHEETS AQUÍ ABAJO ---
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-ncIuqeaDv5Q1HB6DFE9rCCnIuoFzYciClZSohoZxoVtFJdx-Z7xIR1V9JdVAx0PAJw_-Hd2IlG3Z/pub?output=csv'; 
+    // Enlace de Google Sheets corregido
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-ncIuqeaDv5Q1HB6DFE9rCCnIuoFzYciClZSohoZxoVtFJdx-Z7xIR1V9JdVAx0PAJw_-Hd2IlG3Z/pub?output=csv';
     const tel = "5356530329";
     
     let db = { prod: [], serv: [] };
@@ -62,42 +120,60 @@
         try {
             const response = await fetch(SHEET_URL);
             const data = await response.text();
-            const rows = data.split('\n').slice(1);
             
+            // Procesar el CSV de Google
+            const rows = data.split('\n').slice(1);
             db.prod = []; db.serv = [];
             
             rows.forEach(row => {
-                const cols = row.split(',');
-                if(cols.length >= 4) {
-                    const item = { n: cols[0], p: parseFloat(cols[1]), i: cols[2], type: cols[3].trim(), s: parseInt(cols[4]) || 0 };
-                    if(item.type === 'prod') db.prod.push(item);
+                // Manejo de comas dentro de celdas
+                const cols = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+                
+                if(cols && cols.length >= 4) {
+                    const item = { 
+                        n: cols[0].replace(/"/g, ''), 
+                        p: parseFloat(cols[1]), 
+                        i: cols[2].replace(/"/g, ''), 
+                        type: cols[3].trim().toLowerCase(),
+                        s: parseInt(cols[4]) || 0 
+                    };
+                    
+                    if(item.type.includes('prod')) db.prod.push(item);
                     else db.serv.push(item);
                 }
             });
+
             document.getElementById('loader').style.display = 'none';
             render();
         } catch (e) {
-            document.getElementById('loader').innerText = "Error al conectar. Revisa el link de Google Sheets.";
+            console.error(e);
+            document.getElementById('loader').innerText = "⚠️ Error de conexión con Google Sheets. Verifica que el archivo esté 'Publicado en la Web'.";
         }
     }
 
     function switchTab(t) {
         currentTab = t;
-        document.getElementById('tab-prod').classList.toggle('active', t === 'prod');
-        document.getElementById('tab-serv').classList.toggle('active', t === 'serv');
+        document.getElementById('btn-prod').classList.toggle('active', t === 'prod');
+        document.getElementById('btn-serv').classList.toggle('active', t === 'serv');
         render();
     }
 
     function render() {
         const g = document.getElementById('grid');
         g.innerHTML = '';
+        
+        if (db[currentTab].length === 0) {
+            g.innerHTML = `<p style="text-align:center; grid-column: 1/-1; color: #888;">No hay ítems en esta categoría todavía.</p>`;
+            return;
+        }
+
         db[currentTab].forEach((item, i) => {
             const out = currentTab === 'prod' && item.s <= 0;
             g.innerHTML += `
                 <div class="card">
-                    <img src="${item.i}">
+                    <img src="${item.i}" onerror="this.src='https://via.placeholder.com/300?text=VIPCELL'">
                     <h3>${item.n}</h3>
-                    <span class="price">$${item.p}</span>
+                    <span class="price">$${item.p.toFixed(2)}</span>
                     <button class="btn-add" onclick="add(${i})" ${out ? 'disabled' : ''}>
                         ${out ? 'AGOTADO' : 'Seleccionar'}
                     </button>
@@ -118,16 +194,25 @@
         itemsDiv.innerHTML = '';
         for (let k in cart) {
             total += cart[k].qty * cart[k].p; count++;
-            itemsDiv.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${cart[k].qty}x ${k}</span><span>$${cart[k].qty * cart[k].p}</span></div>`;
+            itemsDiv.innerHTML += `
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px;">
+                    <span><b>${cart[k].qty}x</b> ${k}</span>
+                    <span>$${(cart[k].qty * cart[k].p).toFixed(2)}</span>
+                </div>`;
         }
         document.getElementById('cart').style.display = count > 0 ? 'block' : 'none';
         document.getElementById('cart-total').innerText = `$${total.toFixed(2)}`;
     }
 
     function send() {
-        const nom = document.getElementById('c-name').value || "Cliente";
-        let msg = `🔐 *VIPCELLUNLOCK*\n👤 *Cliente:* ${nom}\n\n`;
-        for (let k in cart) msg += `• ${cart[k].qty}x ${k} = $${cart[k].qty * cart[k].p}\n`;
+        const nom = document.getElementById('c-name').value || "Cliente VIP";
+        let msg = `🔐 *PEDIDO VIPCELLUNLOCK*\n👤 *Cliente:* ${nom}\n\n`;
+        let total = 0;
+        for (let k in cart) {
+            total += cart[k].qty * cart[k].p;
+            msg += `• ${cart[k].qty}x ${k} = $${(cart[k].qty * cart[k].p).toFixed(2)}\n`;
+        }
+        msg += `\n💰 *TOTAL A PAGAR: $${total.toFixed(2)}*`;
         window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
         cart = {}; updateCart();
     }
@@ -135,180 +220,4 @@
     loadData();
 </script>
 </body>
-</html>    <span class="lock-icon">🔐</span>
-    <h1 id="s-name">VIPCELLUNLOCK</h1>
-    <p>Premium Tech & Solutions</p>
-</header>
-
-<div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('prod', this)">Productos</button>
-    <button class="tab-btn" onclick="switchTab('serv', this)">Servicios</button>
-</div>
-
-<div class="container" id="grid"></div>
-
-<div class="cart-float" id="cart">
-    <div style="font-weight: bold; text-align: center; margin-bottom: 15px;">RESUMEN DE PEDIDO</div>
-    <div id="cart-items"></div>
-    <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 15px; font-size: 1.2rem; border-top: 1px solid #eee; padding-top: 10px;">
-        <span>Total:</span><span id="cart-total">$0.00</span>
-    </div>
-    <input type="text" id="c-name" placeholder="Tu Nombre" style="margin-top:15px;">
-    <button onclick="send()" style="background:var(--whatsapp); color:white; border:none; width:100%; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer; margin-top:10px;">PEDIR POR WHATSAPP</button>
-</div>
-
-<footer>
-    <p>© 2026 VIPCELLUNLOCK</p>
-    <a href="https://leandrorodriguezsarmiento-oss.github.io/My-Tienditacuba/">https://leandrorodriguezsarmiento-oss.github.io/My-Tienditacuba/</a>
-</footer>
-
-<script>
-    const tel = "5356530329";
-    const PIN = "1977";
-    let isEdit = false;
-    let tab = 'prod';
-    let cart = {};
-
-    let db = JSON.parse(localStorage.getItem('vip_db_v2')) || {
-        prod: [{id: 1, n: "iPhone 15", p: 1000, i: "https://via.placeholder.com/300", s: 5}],
-        serv: [{id: 2, n: "Unlock iCloud", p: 50, i: "https://via.placeholder.com/300"}]
-    };
-
-    function toggleMenu() {
-        const p = document.getElementById('adminPanel');
-        p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function accessAdmin() {
-        if(isEdit) { toggleEdit(); return; }
-        const entered = prompt("PIN de Acceso:");
-        if(entered === PIN) toggleEdit();
-    }
-
-    function toggleEdit() {
-        isEdit = !isEdit;
-        document.getElementById('editButtons').style.display = isEdit ? 'block' : 'none';
-        document.body.classList.toggle('edit-mode', isEdit);
-        render();
-    }
-
-    function switchTab(t, btn) {
-        tab = t;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
-        render();
-    }
-
-    function render() {
-        const g = document.getElementById('grid');
-        g.innerHTML = '';
-        db[tab].forEach((item, i) => {
-            const idPrefix = `${tab}-${i}`;
-            g.innerHTML += `
-                <div class="card">
-                    <img src="${item.i}" alt="${escapeHtml(item.n)}">
-                    <div class="admin-fields">
-                        <input type="text" id="url-${idPrefix}" placeholder="Link foto ImgBB" value="${escapeHtml(item.i)}">
-                        <div style="display:flex; gap:8px; justify-content:center; margin-top:6px;">
-                            <button onclick="del(${i})" style="color:white; background:#ff3b30; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">Eliminar ítem</button>
-                            <button onclick="saveSingle(${i})" style="background:#0071e3; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">Guardar</button>
-                        </div>
-                    </div>
-                    <h3 id="n-${idPrefix}" contenteditable="${isEdit}">${escapeHtml(item.n)}</h3>
-                    <span class="price">$<span id="p-${idPrefix}" contenteditable="${isEdit}">${item.p}</span></span>
-                    <button class="btn-add" onclick="addToCart(${i})">Seleccionar</button>
-                </div>`;
-        });
-    }
-
-    function addToCart(i) {
-        const item = db[tab][i];
-        const key = tab + "_" + item.id;
-        if(!cart[key]) cart[key] = { ...item, qty: 0 };
-        cart[key].qty++;
-        updateCart();
-    }
-
-    function removeFromCart(key) {
-        delete cart[key];
-        updateCart();
-    }
-
-    function updateCart() {
-        const itemsDiv = document.getElementById('cart-items');
-        let total = 0; let count = 0;
-        itemsDiv.innerHTML = '';
-        for (let k in cart) {
-            let it = cart[k];
-            total += it.qty * it.p; count++;
-            itemsDiv.innerHTML += `
-                <div class="cart-item">
-                    <span>${it.qty}x ${escapeHtml(it.n)}</span>
-                    <span>$${(it.qty * it.p).toFixed(2)} <span class="remove-btn" onclick="removeFromCart('${k}')">✕</span></span>
-                </div>`;
-        }
-        document.getElementById('cart').style.display = count > 0 ? 'block' : 'none';
-        document.getElementById('cart-total').innerText = `$${total.toFixed(2)}`;
-    }
-
-    function send() {
-        const nom = document.getElementById('c-name').value || "Cliente";
-        let msg = `🔐 *VIPCELLUNLOCK*%0A👤 *Cliente:* ${nom}%0A%0A`;
-        for (let k in cart) {
-            let it = cart[k];
-            msg += `• ${it.qty}x ${it.n} = $${(it.qty * it.p).toFixed(2)}%0A`;
-        }
-        window.open(`https://wa.me/${tel}?text=${msg}`);
-        cart = {}; updateCart();
-    }
-
-    function saveAll() {
-        db[tab].forEach((item, i) => {
-            const idPrefix = `${tab}-${i}`;
-            const nEl = document.getElementById(`n-${idPrefix}`);
-            const pEl = document.getElementById(`p-${idPrefix}`);
-            const urlEl = document.getElementById(`url-${idPrefix}`);
-            if(nEl) item.n = nEl.innerText.trim() || item.n;
-            if(pEl) item.p = parseFloat(pEl.innerText) || 0;
-            if(urlEl) item.i = urlEl.value.trim() || item.i;
-        });
-        localStorage.setItem('vip_db_v2', JSON.stringify(db));
-        alert("¡Guardado!");
-        toggleEdit();
-    }
-
-    function saveSingle(i) {
-        const idPrefix = `${tab}-${i}`;
-        const nEl = document.getElementById(`n-${idPrefix}`);
-        const pEl = document.getElementById(`p-${idPrefix}`);
-        const urlEl = document.getElementById(`url-${idPrefix}`);
-        const item = db[tab][i];
-        if(nEl) item.n = nEl.innerText.trim() || item.n;
-        if(pEl) item.p = parseFloat(pEl.innerText) || 0;
-        if(urlEl) item.i = urlEl.value.trim() || item.i;
-        localStorage.setItem('vip_db_v2', JSON.stringify(db));
-        render();
-    }
-
-    function newItem() {
-        db[tab].push({id: Date.now(), n: "Nuevo", p: 0, i: "https://via.placeholder.com/300"});
-        render();
-    }
-
-    function del(i) { db[tab].splice(i, 1); localStorage.setItem('vip_db_v2', JSON.stringify(db)); render(); }
-
-    // small helper to avoid XSS when injecting strings into HTML templates
-    function escapeHtml(str) {
-        return String(str)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    render();
-</script>
-</body>
-
 </html>
