@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iMobile Style | Tiendota Pro</title>
+    <style>
+        :root {
+            --primary: #0071e3;
+            --dark: #1d1d1f;
+            --bg: #f5f5f7;
+            --whatsapp: #25d366;
+        }
+
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            margin: 0; background: var(--bg); color: var(--dark); 
+            padding-bottom: 150px;
+        }
+
+        /* Nav y Header */
+        nav { background: rgba(0,0,0,0.9); padding: 12px; position: sticky; top: 0; z-index: 1000; text-align: center; }
+        header { background: #000; color: white; text-align: center; padding: 60px 20px; }
+        header h1 { font-size: 2.2rem; margin: 0; font-weight: 700; }
+        
+        /* Pestañas */
+        .tabs { display: flex; justify-content: center; background: white; border-bottom: 1px solid #d2d2d7; padding: 10px 0; }
+        .tab-btn { border: none; background: none; padding: 10px 25px; font-size: 16px; cursor: pointer; font-weight: 600; border-radius: 20px; transition: 0.3s; color: #1d1d1f; }
+        .tab-btn.active { background: var(--primary); color: white; }
+
+        /* Contenedor */
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding: 30px 20px; max-width: 1100px; margin: auto; }
+        .card { background: white; border-radius: 22px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s; position: relative; }
+        .card img { width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; border-radius: 10px; }
+
+        .price { font-size: 1.6rem; font-weight: 700; color: var(--primary); display: block; margin: 15px 0; }
+        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+        .btn-add:disabled { background: #d2d2d7; }
+
+        /* Carrito */
+        .cart-float { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: white; width: 92%; max-width: 420px; border-radius: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); padding: 25px; display: none; z-index: 2000; border: 1px solid #eee; }
+        .btn-send { background: var(--whatsapp); color: white; border: none; width: 100%; padding: 16px; border-radius: 15px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; }
+
+        /* Admin */
+        .admin-box { background: #fff1f1; border: 1px dashed #ff3b30; padding: 15px; margin-bottom: 15px; display: none; border-radius: 12px; text-align: left; }
+        input { width: 92%; padding: 12px; margin: 8px 0; border: 1px solid #d2d2d7; border-radius: 10px; font-size: 14px; outline: none; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <button onclick="accessAdmin()" id="btn-adm" style="background:none; border: 1px solid white; color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: 600;">⚙️ Configurar</button>
+    <button onclick="newItem()" id="btn-add-item" style="display:none; background: #2ecc71; color: white; border: none; padding: 8px 20px; border-radius: 20px; margin-left: 10px; font-weight: 600;">+ Añadir</button>
+    <button onclick="saveAll()" id="btn-save" style="display:none; background: #0071e3; color: white; border: none; padding: 8px 20px; border-radius: 20px; margin-left: 10px; font-weight: 600;">💾 Guardar</button>
+</nav>
+
+<header>
+    <h1 id="s-name">iMobile Cuba</h1>
+    <p id="s-sub">Premium Technology</p>
+</header>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('prod')">Productos</button>
+    <button class="tab-btn" onclick="switchTab('serv')">Servicios</button>
+</div>
+
+<div class="container" id="grid"></div>
+
+<div class="cart-float" id="cart">
+    <div style="font-weight: 800; border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px; font-size: 1.2rem; text-align:center;">🛒 Tu Pedido</div>
+    <div id="cart-items" style="max-height: 150px; overflow-y: auto; font-size: 15px;"></div>
+    <div style="display: flex; justify-content: space-between; font-weight: 800; margin-top: 15px; font-size: 1.4rem;">
+        <span>Total:</span><span id="cart-total">$0.00</span>
+    </div>
+    <div style="margin-top: 20px;">
+        <input type="text" id="c-name" placeholder="Tu Nombre">
+        <input type="text" id="c-dir" placeholder="Dirección o WhatsApp">
+    </div>
+    <button class="btn-send" onclick="send()">✅ Enviar a WhatsApp</button>
+</div>
+
+<script>
+    const tel = "5356530329";
+    const PIN = "1977";
+    let edit = false;
+    let tab = 'prod';
+    let cartData = {};
+
+    let db = JSON.parse(localStorage.getItem('im_db_v13')) || {
+        prod: [{id: 1, n: "iPhone Pro", p: 1000, i: "https://via.placeholder.com/400", s: 5}],
+        serv: [{id: 2, n: "Desbloqueo iCloud", p: 50, i: "https://via.placeholder.com/400"}]
+    };
+
+    function accessAdmin() {
+        if(edit) { toggle(); return; }
+        const p = prompt("PIN de Seguridad:");
+        if(p === PIN) toggle();
+        else if(p !== null) alert("PIN Incorrecto");
+    }
+
+    function switchTab(t) {
+        tab = t;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        if(event) event.target.classList.add('active');
+        render();
+    }
+
+    function render() {
+        const g = document.getElementById('grid');
+        g.innerHTML = '';
+        db[tab].forEach((item, i) => {
+            const out = tab === 'prod' && item.s <= 0;
+            g.innerHTML += `
+                <div class="card">
+                    <img src="${item.i}">
+                    <div class="admin-box" style="display:${edit ? 'block' : 'none'}">
+                        <input type="text" id="url-${i}" placeholder="URL de Imagen" value="${item.i}">
+                        ${tab === 'prod' ? `<input type="number" id="stk-${i}" placeholder="Stock" value="${item.s}">` : ''}
+                        <button onclick="del(${i})" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">Eliminar</button>
+                    </div>
+                    <h3 id="n-${i}" contenteditable="${edit}">${item.n}</h3>
+                    <span class="price">$<span id="p-${i}" contenteditable="${edit}">${item.p}</span></span>
+                    <button class="btn-add" onclick="add(${i})" ${out ? 'disabled' : ''}>
+                        ${out ? 'Agotado' : 'Seleccionar'}
+                    </button>
+                </div>`;
+        });
+        document.getElementById('s-name').innerText = localStorage.getItem('im_name') || "iMobile Cuba";
+    }
+
+    function add(i) {
+        const item = db[tab][i];
+        const key = tab + "_" + item.id;
+        if(!cartData[key]) cartData[key] = { ...item, qty: 0 };
+        cartData[key].qty++;
+        upCart();
+    }
+
+    function upCart() {
+        const box = document.getElementById('cart');
+        const itemsDiv = document.getElementById('cart-items');
+        let total = 0; let count = 0;
+        itemsDiv.innerHTML = '';
+        for (let k in cartData) {
+            let it = cartData[k];
+            let sub = it.qty * it.p; total += sub; count++;
+            itemsDiv.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${it.qty}x ${it.n}</span><span>$${sub.toFixed(2)}</span></div>`;
+        }
+        box.style.display = count > 0 ? 'block' : 'none';
+        document.getElementById('cart-total').innerText = `$${total.toFixed(2)}`;
+    }
+
+    function send() {
+        const nom = document.getElementById('c-name').value || "Cliente";
+        let msg = ` *PEDIDO iMOBILE*\n👤 *Cliente:* ${nom}\n\n`;
+        let total = 0;
+        for (let k in cartData) {
+            let it = cartData[k];
+            let sub = it.qty * it.p; total += sub;
+            msg += `• ${it.qty}x ${it.n} = $${sub.toFixed(2)}\n`;
+        }
+        msg += `\n*TOTAL:* $${total.toFixed(2)}`;
+        window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
+        cartData = {}; upCart();
+    }
+
+    function toggle() {
+        edit = !edit;
+        document.getElementById('btn-adm').innerText = edit ? "❌ Salir" : "⚙️ Configurar";
+        document.getElementById('btn-add-item').style.display = edit ? 'inline-block' : 'none';
+        document.getElementById('btn-save').style.display = edit ? 'inline-block' : 'none';
+        document.getElementById('s-name').contentEditable = edit;
+        render();
+    }
+
+    function saveAll() {
+        db[tab].forEach((item, i) => {
+            item.n = document.getElementById(`n-${i}`).innerText;
+            item.p = parseFloat(document.getElementById(`p-${i}`).innerText) || 0;
+            item.i = document.getElementById(`url-${i}`).value;
+            if(tab === 'prod') item.s = parseInt(document.getElementById(`stk-${i}`).value) || 0;
+        });
+        localStorage.setItem('im_db_v13', JSON.stringify(db));
+        localStorage.setItem('im_name', document.getElementById('s-name').innerText);
+        alert("¡Guardado!"); toggle();
+    }
+
+    function newItem() {
+        db[tab].push({id: Date.now(), n: "Nuevo", p: 0, i: "https://via.placeholder.com/400", s: 1});
+        render();
+    }
+
+    function del(i) { db[tab].splice(i, 1); render(); }
+
+    render();
+</script>
+</body>
+</html>
